@@ -1,0 +1,13 @@
+body {
+    display: flex;
+    flex-direction: row;
+}
+
+#output {
+    display: block;
+}
+
+.code {
+    border-style: solid;
+    border-radius: 5px;
+}
