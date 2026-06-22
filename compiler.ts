@@ -7,8 +7,12 @@ type BracketToken =
     {bracket: false, token: Token} |
     {bracket: true, token: BracketToken[]}
 
-// type ASTNode = {
-//     token: Token[],
+// type ASTNode = 
+//     {type: Token} |
+//     {type: Token, children}
+
+// {
+//     token: BracketToken,
 //     children: ASTNode[]
 // }
 
@@ -68,13 +72,65 @@ function bracketParser(input: Token[]): BracketToken[] {
     return output;
 }
 
-// function parser(input: Token[]): ASTNode[] {
+// function parser(input: BracketToken[]): ASTNode[] {
 //     let output: ASTNode[] = []
-//     for(const token of input) {
-//         if()
+//     for(let i=0; i < input.length; i++) {
+//         let token: BracketToken = input.at(i)!
+//         if(token.bracket == false && token.token.type == "digit") {
+//             output.push({token: token, children: []});
+//         }
 //     }
 //     return output;
 // }
+
+function TokenToHTML(input: BracketToken[]): string {
+    let output: string = "";
+
+    for(let i = 0; i < input.length; i++) {
+        let token: BracketToken = input.at(i)!;
+        if(token.bracket == false && token.token.type == "digit") {
+            let digit: string = token.token.value;
+            if(digit == ">") {
+                digit = "&gt;";
+            } else if(digit == "<") {
+                digit = "&lt;";
+            } else if(digit == "&") {
+                digit = "&amp;";
+            }
+            output += "<span>" + digit + "</span>";
+        } else if(token.bracket == false && token.token.type == "command") {
+            let command: string = token.token.value;
+            if(command == "^") {
+                i++;
+                token = input.at(i)!;
+                if(token.bracket == true) {
+                    output += "<sup>" + TokenToHTML(token.token) + "</sup>";
+                } else {
+                    console.error("Parser error");
+                }
+            } else if(command == "_") {
+                i++;
+                token = input.at(i)!;
+                if(token.bracket == true) {
+                    output += "<sub>" + TokenToHTML(token.token) + "</sub>";
+                } else {
+                    console.error("Parser error");
+                }
+            } else if(command == "frac") {
+                let num: BracketToken = input.at(i+1)!;
+                let denom: BracketToken = input.at(i+2)!;
+                if(num.bracket == true && denom.bracket == true) {
+                    output += "<math><mfrac><mi>" + TokenToHTML(num.token) + "</mi><mn>" + TokenToHTML(denom.token) + "</mn></mfrac></math>"
+                    console.log(TokenToHTML(denom.token));
+                    console.log(JSON.stringify(denom));
+                }
+                i += 2
+            }
+        }
+    }
+
+    return output;
+}
 
 const codeinput = document.getElementById("codeinput") as HTMLInputElement;
 const codebutton = document.getElementById("codebutton") as HTMLButtonElement;
@@ -85,6 +141,8 @@ codebutton.onclick = () => {
 
     //console.log(JSON.stringify(bracketParser(tokenizer(codeinput.value))));
     //console.log(JSON.stringify(tokenizer(codeinput.value)));
+
+    div.innerHTML = TokenToHTML(bracketParser(tokenizer(codeinput.value)));
 
     div.classList.add("code");
     output.append(div);
