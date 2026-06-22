@@ -3,6 +3,15 @@ type Token =
     {type: "command", value: string} | 
     {type: "brace", value: string}
 
+type BracketToken = 
+    {bracket: false, token: Token} |
+    {bracket: true, token: BracketToken[]}
+
+// type ASTNode = {
+//     token: Token[],
+//     children: ASTNode[]
+// }
+
 
 function tokenizer(input: string): Token[] {
     let output: Token[] = []
@@ -14,6 +23,7 @@ function tokenizer(input: string): Token[] {
                 temp += input.at(i);
                 i++
             }
+            i--
             output.push({type: "command", value: temp});
         } else if(input.at(i) == "{") {
             output.push({type: "brace", value: "{"});
@@ -28,17 +38,54 @@ function tokenizer(input: string): Token[] {
     return output;
 }
 
+function bracketParser(input: Token[]): BracketToken[] {
+    let output: BracketToken[] = [];
+    for(let i=0; i < input.length; i++) {
+        if(input.at(i)!.type != "brace") {
+            output.push({bracket: false, token: input.at(i)!});
+        } else {
+            let temp: Token[] = []
+            let brace: number = 1;
+            i++
+            while(brace != 0) {
+                let token: Token = input.at(i)!
+                if(token.type == "brace") {
+                    if(token.value == "{") {
+                        brace++;
+                    } else if(token.value == "}") {
+                        brace--;
+                    }
+                }
+                if(brace != 0) {
+                    temp.push(token);
+                }
+                i++;
+            }
+            i--
+            output.push({bracket: true, token: bracketParser(temp)});
+        }
+    }
+    return output;
+}
+
+// function parser(input: Token[]): ASTNode[] {
+//     let output: ASTNode[] = []
+//     for(const token of input) {
+//         if()
+//     }
+//     return output;
+// }
+
 const codeinput = document.getElementById("codeinput") as HTMLInputElement;
 const codebutton = document.getElementById("codebutton") as HTMLButtonElement;
 const output = document.getElementById("output") as HTMLDivElement;
 
 codebutton.onclick = () => {
     const div: HTMLDivElement = document.createElement("div");
-    //div.innerHTML = JSON.stringify(tokenizer(codeinput.value));
-    div.textContent = tokenizer(codeinput.value)
-    .map(t => `${t.type}: ${t.value}`)
-    .join("\n");
-    
+
+    //console.log(JSON.stringify(bracketParser(tokenizer(codeinput.value))));
+    //console.log(JSON.stringify(tokenizer(codeinput.value)));
+
     div.classList.add("code");
     output.append(div);
 
