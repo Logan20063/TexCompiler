@@ -7,15 +7,25 @@ type BracketToken =
     {bracket: false, token: Token} |
     {bracket: true, token: BracketToken[]}
 
-// type ASTNode = 
-//     {type: Token} |
-//     {type: Token, children}
+const commands: Record<string, string> = {
+    "in": "&isin;",
+    "notin": "&notin;",
+    "forall": "&forall;",
+    "partial": "&part;",
+    "exists": "&exist;",
+    "leq": "&le;",
+    "le": "&le;",
+    "geq": "&ge;",
+    "ge": "&ge;",
+    "implies": "&#x21D2;",
+    "impliedby": "&#x21D0;",
+    "epsilon": "&#x3B5",
+    "delta": "&#x3B4"
+}
 
-// {
-//     token: BracketToken,
-//     children: ASTNode[]
-// }
-
+const mathbb: Record<string, string> = {
+    "R": "&#x211D"
+}
 
 function tokenizer(input: string): Token[] {
     let output: Token[] = []
@@ -83,7 +93,17 @@ function bracketParser(input: Token[]): BracketToken[] {
 //     return output;
 // }
 
-function TokenToHTML(input: BracketToken[]): string {
+function TokenToHTML(input: BracketToken[] | BracketToken | Token): string {
+    if(!Array.isArray(input)) {
+        if("type" in input) {
+            return input.value;
+        }
+        if(input.bracket == false) {
+            return input.token.value;
+        }
+        console.log("here");
+        return "";
+    }
     let output: string = "";
 
     for(let i = 0; i < input.length; i++) {
@@ -100,31 +120,46 @@ function TokenToHTML(input: BracketToken[]): string {
             output += "<span>" + digit + "</span>";
         } else if(token.bracket == false && token.token.type == "command") {
             let command: string = token.token.value;
-            if(command == "^") {
+            if(command in commands) {
+                output += "<span>" + commands[command] + "</span>";
+            } else if(command == "^") {
                 i++;
                 token = input.at(i)!;
-                if(token.bracket == true) {
+                // if(token.bracket == true) {
                     output += "<sup>" + TokenToHTML(token.token) + "</sup>";
-                } else {
-                    console.error("Parser error");
-                }
+                // } else {
+                //     console.error("Parser error");
+                // }
             } else if(command == "_") {
                 i++;
                 token = input.at(i)!;
-                if(token.bracket == true) {
+                // if(token.bracket == true) {
                     output += "<sub>" + TokenToHTML(token.token) + "</sub>";
-                } else {
-                    console.error("Parser error");
-                }
+                // } else {
+                //     console.error("Parser error");
+                // }
             } else if(command == "frac") {
                 let num: BracketToken = input.at(i+1)!;
                 let denom: BracketToken = input.at(i+2)!;
-                if(num.bracket == true && denom.bracket == true) {
-                    output += "<math><mfrac><mi>" + TokenToHTML(num.token) + "</mi><mn>" + TokenToHTML(denom.token) + "</mn></mfrac></math>"
-                    console.log(TokenToHTML(denom.token));
-                    console.log(JSON.stringify(denom));
-                }
+                //if(num.bracket == true && denom.bracket == true) {
+                    //output += "<math><mfrac><mi>" + TokenToHTML(num.token) + "</mi><mn>" + TokenToHTML(denom.token) + "</mn></mfrac></math>"
+                    output += `<div class="fraction"><div class="numerator"> ${TokenToHTML(num.token)}</div><div class="denominator"> ${TokenToHTML(denom.token)}</div></div>`
+                    //console.log(TokenToHTML(denom.token));
+                    //console.log(JSON.stringify(denom));
+                //}
                 i += 2
+            } else if(command == "mathbb") {
+                let next: BracketToken = input.at(i+1)!;
+                if(next.bracket == true && next.token.length == 1) {
+                    next = next.token.at(0)!
+                    if(next.bracket == false)
+                    {
+                        let value: string = next.token.value;
+                        if(value in mathbb) {
+                            output += `<span>${mathbb[value]}</span>`
+                        }
+                    }
+                }
             }
         }
     }
