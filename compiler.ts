@@ -19,12 +19,16 @@ const commands: Record<string, string> = {
     "ge": "&ge;",
     "implies": "&#x21D2;",
     "impliedby": "&#x21D0;",
-    "epsilon": "&#x3B5",
-    "delta": "&#x3B4"
+    "epsilon": "&#x3B5;",
+    "delta": "&#x3B4;"
 }
 
 const mathbb: Record<string, string> = {
-    "R": "&#x211D"
+    "R": "&#x211D;",
+    "N": "&#x2115;",
+    "C": "&#x2102;",
+    "Q": "&#x211A;",
+    "Z": "&#x2124;",
 }
 
 function tokenizer(input: string): Token[] {
@@ -96,13 +100,15 @@ function bracketParser(input: Token[]): BracketToken[] {
 function TokenToHTML(input: BracketToken[] | BracketToken | Token): string {
     if(!Array.isArray(input)) {
         if("type" in input) {
+            if(input.value == " ") {
+                return "";
+            }
             return input.value;
         }
         if(input.bracket == false) {
             return input.token.value;
         }
-        console.log("here");
-        return "";
+        return TokenToHTML(input.token);
     }
     let output: string = "";
 
@@ -160,6 +166,10 @@ function TokenToHTML(input: BracketToken[] | BracketToken | Token): string {
                         }
                     }
                 }
+            } else if(command == "sqrt") {
+                output += "&radic;";
+                output += `<span class="sqrt">${TokenToHTML(input.at(i+1)!)}</span>`;
+                i += 1;
             }
         }
     }

@@ -10,6 +10,7 @@ body {
 .code {
     border-style: solid;
     border-radius: 5px;
+    padding: 2px;
 }
 
 .fraction {
@@ -26,4 +27,8 @@ body {
 
 .denominator {
     padding: 0 0.2em;
+}
+
+.sqrt {
+    border-top: 1px solid black;
 }
