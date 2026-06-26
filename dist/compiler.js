@@ -22,6 +22,9 @@ const mathbb = {
     "Z": "&#x2124;",
 };
 function tokenizer(input) {
+    if (!braceValidation(input)) {
+        return [{ type: "digit", value: "Braces Are Not Aligned" }];
+    }
     let output = [];
     for (let i = 0; i < input.length; i++) {
         if (input.at(i) == "\\") {
@@ -173,6 +176,25 @@ function TokenToHTML(input) {
         }
     }
     return output;
+}
+function braceValidation(input) {
+    let stack = [];
+    for (const char of input) {
+        if (char == "{" || char == "[") {
+            stack.push(char);
+        }
+        else if (char == "}") {
+            if (stack.length == 0 || stack.pop() != "{") {
+                return false;
+            }
+        }
+        else if (char == "]") {
+            if (stack.length == 0 || stack.pop() != "[") {
+                return false;
+            }
+        }
+    }
+    return stack.length == 0;
 }
 const codeinput = document.getElementById("codeinput");
 const codebutton = document.getElementById("codebutton");

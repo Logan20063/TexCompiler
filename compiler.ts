@@ -32,6 +32,9 @@ const mathbb: Record<string, string> = {
 }
 
 function tokenizer(input: string): Token[] {
+    if(!braceValidation(input)) {
+        return [{type: "digit", value: "Braces Are Not Aligned"}];
+    }
     let output: Token[] = []
     for(let i: number = 0; i < input.length; i++) {
         if(input.at(i) == "\\") {
@@ -175,6 +178,24 @@ function TokenToHTML(input: BracketToken[] | BracketToken | Token): string {
     }
 
     return output;
+}
+
+function braceValidation(input: string): boolean {
+    let stack = [];
+    for(const char of input) {
+        if(char == "{" || char == "[") {
+            stack.push(char);
+        } else if(char == "}") {
+            if(stack.length == 0 || stack.pop() != "{") {
+                return false;
+            }
+        } else if(char == "]") {
+            if(stack.length == 0 || stack.pop() != "[") {
+                return false;
+            }
+        }
+    }
+    return stack.length == 0;
 }
 
 const codeinput = document.getElementById("codeinput") as HTMLInputElement;
