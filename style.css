@@ -1,6 +1,11 @@
+html {
+    width: 100%;
+}
+
 body {
     display: flex;
     flex-direction: row;
+    width: 100%;
 }
 
 #output {
@@ -10,7 +15,7 @@ body {
 .code {
     border-style: solid;
     border-radius: 5px;
-    padding: 2px;
+    padding: 5px;
 }
 
 .fraction {
@@ -31,4 +36,23 @@ body {
 
 .sqrt {
     border-top: 1px solid black;
+}
+
+#input {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
+}
+
+input {
+    width: 100%;
+}
+
+button {
+    width: min(10%, 10em);
+}
+
+#interim {
+    margin: 10px;
 }

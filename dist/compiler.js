@@ -199,6 +199,7 @@ function braceValidation(input) {
 const codeinput = document.getElementById("codeinput");
 const codebutton = document.getElementById("codebutton");
 const output = document.getElementById("output");
+const interim = document.getElementById("interim");
 codebutton.onclick = () => {
     const div = document.createElement("div");
     //console.log(JSON.stringify(bracketParser(tokenizer(codeinput.value))));
@@ -207,9 +208,13 @@ codebutton.onclick = () => {
     div.classList.add("code");
     output.append(div);
     codeinput.value = "";
+    interim.innerHTML = "";
 };
-codeinput.addEventListener("keydown", (e) => {
+codeinput.addEventListener("keyup", (e) => {
     if (e.key == "Enter") {
         codebutton.click();
+    }
+    else {
+        interim.innerHTML = TokenToHTML(bracketParser(tokenizer(codeinput.value)));
     }
 });

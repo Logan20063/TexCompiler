@@ -201,6 +201,7 @@ function braceValidation(input: string): boolean {
 const codeinput = document.getElementById("codeinput") as HTMLInputElement;
 const codebutton = document.getElementById("codebutton") as HTMLButtonElement;
 const output = document.getElementById("output") as HTMLDivElement;
+const interim = document.getElementById("interim") as HTMLDListElement;
 
 codebutton.onclick = () => {
     const div: HTMLDivElement = document.createElement("div");
@@ -214,10 +215,13 @@ codebutton.onclick = () => {
     output.append(div);
 
     codeinput.value = "";
+    interim.innerHTML = "";
 }
 
-codeinput.addEventListener("keydown", (e) => {
+codeinput.addEventListener("keyup", (e) => {
     if(e.key == "Enter") {
         codebutton.click();
+    } else {
+        interim.innerHTML = TokenToHTML(bracketParser(tokenizer(codeinput.value)));
     }
 })
